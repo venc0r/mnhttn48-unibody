@@ -1,0 +1,6 @@
+board/check/
+board/out/
+board/out.zip
+board/~*.lck
+board/*-backups/
+board/fp-info-cache
