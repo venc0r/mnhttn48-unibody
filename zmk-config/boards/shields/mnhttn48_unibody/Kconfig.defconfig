@@ -1,0 +1,6 @@
+if SHIELD_MNHTTN48_UNIBODY
+
+config ZMK_KEYBOARD_NAME
+    default "mnhTTn48 unibody"
+
+endif
