@@ -10,7 +10,7 @@ made to sit on top of a notebook keyboard (Dell XPS 13 9300, MacBook Pro 14 2026
 * 1.6 mm PCB with a flat underside, rests on the deck above the keyboard and on the palm rest
   beside the trackpad, so the notebook keys are never touched
 
-Status: PCB (1.6 mm) and parts ordered 2026-11-22, ZMK shield written but not built yet, see [agent.md](agent.md).
+Status: PCB (1.6 mm, with Touch ID window) and parts ordered 2026-11-22, ZMK shield written but not built yet, see [agent.md](agent.md).
 
 ## Layout
 mnhTTn48 key positions are the source of truth (`tools/keys-mnhttn48.json`, extracted from the

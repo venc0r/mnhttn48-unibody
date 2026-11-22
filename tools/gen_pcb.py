@@ -597,7 +597,10 @@ def main():
     ox, oy = ORIGIN
     outline = [(x + ox, y + oy) for x, y in layout["outline"]]
     rounded_outline(board, outline, layout["corner_radius"])
-    centre_x = (layout["outline"][0][0] + layout["outline"][1][0]) / 2 + ox
+    for hole in layout.get("holes", []):
+        rounded_outline(board, [(x + ox, y + oy) for x, y in hole], layout["corner_radius"])
+    outline_xs = [x for x, _ in layout["outline"]]
+    centre_x = (min(outline_xs) + max(outline_xs)) / 2 + ox
 
     frames = {}
     half_keys = {"left": [], "right": []}

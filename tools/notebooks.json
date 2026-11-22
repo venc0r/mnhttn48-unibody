@@ -13,7 +13,10 @@
       "bottom_rest_note": "fills the XPS depth limit of 190 mm: 10 + 118.6 + 61.4, edge lands at y 180 on the MBP palm rest",
       "corner_radius": 3.0,
       "trackpad_clearance": 0.5,
-      "trackpad_clearance_note": "notch wider than the trackpad on each side"
+      "trackpad_clearance_note": "notch wider than the trackpad on each side",
+      "touch_id_clearance": 0.5,
+      "touch_id_hole_x0": 261.2,
+      "touch_id_hole_note": "window through the board above Touch ID, the top rest strip stays whole (user, 2026-11-22). Touch ID + clearance, but the left edge 0.6 mm inside the Touch ID key, because SW_L_4_1's housing pad reaches x 260.73; 0.47 mm copper to edge"
     },
     "keepouts": [
       {"name": "Touch ID", "x0": 260.6, "y0": 3.2, "x1": 277.1, "y1": 17.2},
