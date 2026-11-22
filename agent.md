@@ -260,9 +260,11 @@ Notebooks (`tools/notebooks.json`, origin = top left corner of the keyboard well
 
 ## Open items
 
-- Ordered 2026-11-22 (user): PCB at JLCPCB, 1.6 mm, from the fab files of this working state
-  (SOD-123 diode block), plus 74HC595D, 100 nF 0603, keycaps and rest pads. Next: assembly,
-  first firmware build.
+- Parts ordered 2026-11-22 (user): 74HC595D, 100 nF 0603, keycaps, rest pads. The PCB order
+  at JLCPCB was cancelled the same day, because the board covered Touch ID (the outline only
+  had the trackpad cut out, `layout.py` checks keep-outs against the keys, not the outline).
+  A window above Touch ID is cut out now; PCB ordered again 2026-11-22 (1.6 mm) from the fab
+  files of this state. Next: assembly, first firmware build.
 
 - Later, once keycaps exist: keycap top vs deck on both notebooks; rest pads only after that
   (user, 2026-11-22: no thoughts on pads for now).
@@ -274,7 +276,11 @@ Notebooks (`tools/notebooks.json`, origin = top left corner of the keyboard well
   uses the full XPS depth of 190 mm (user: an edge under the palms would be annoying), trackpad
   notch x 74.65-205.65 (trackpad + `trackpad_clearance` 0.5 per side) open from y 118.6 to the
   bottom edge, so the board is a U with two palm
-  rest legs. 284.3 x 190.0 mm, corner radius 3 mm to be applied in Edge.Cuts.
+  rest legs. Window above Touch ID (`holes` in `board/layout.json`), so the top rest strip stays
+  whole (user: hole, not a corner cut): x 261.2..277.6, y 2.7..17.7 = Touch ID +
+  `touch_id_clearance` 0.5, but the left edge at `touch_id_hole_x0` 261.2, 0.6 mm inside the Touch
+  ID key, because SW_L_4_1's housing pad reaches x 260.73. A 4.7 mm bar stays right of it.
+  284.3 x 190.0 mm, every corner (holes too) rounded with 3 mm in Edge.Cuts.
   Still to measure on both notebooks: keycap top vs deck (pad thickness follows from it), MBP
   palm rest depth available beside the trackpad.
 - Thumb keys 30 / 47 sit on the trackpad notch edge with no rim (switch body still 2 mm away).

@@ -190,6 +190,19 @@ def trackpad_notch(notebook):
     return trackpad["x0"] - clearance, trackpad["x1"] + clearance, trackpad["y0"]
 
 
+def board_holes(notebook):
+    """Window polygons through the board: Touch ID widened by its clearance, the left edge at
+    `touch_id_hole_x0` (see its note); empty without one."""
+    board = notebook["board"]
+    if "touch_id_hole_x0" not in board:
+        return []
+    touch_id = next(k for k in notebook["keepouts"] if k["name"] == "Touch ID")
+    clearance = board["touch_id_clearance"]
+    x0, x1 = board["touch_id_hole_x0"], touch_id["x1"] + clearance
+    y0, y1 = touch_id["y0"] - clearance, touch_id["y1"] + clearance
+    return [[(x0, y0), (x1, y0), (x1, y1), (x0, y1)]]
+
+
 def board_outline(notebook):
     """Board polygon in well coordinates: full well width plus side overhang, a rest strip above the
     well, rest areas on the palm rest left and right of the trackpad, the trackpad itself cut out."""
@@ -294,8 +307,9 @@ def write_svg(keys, notebook, args, problems, outline):
     if outline:
         for zone in rest_zones(notebook):
             parts.append(svg_rect(zone, "#999", dash="0.5 0.5", label=zone["name"]))
-        points = " ".join(f"{x:.3f},{y:.3f}" for x, y in outline)
-        parts.append(f'<polygon points="{points}" fill="none" stroke="#000" stroke-width="0.4"/>')
+        for polygon in [outline, *board_holes(notebook)]:
+            points = " ".join(f"{x:.3f},{y:.3f}" for x, y in polygon)
+            parts.append(f'<polygon points="{points}" fill="none" stroke="#000" stroke-width="0.4"/>')
     parts.extend(svg_key(key) for key in keys)
     parts.append(
         svg_ruler(scale_x0, scale_y, horizontal=True) +
@@ -369,6 +383,7 @@ def main():
         "notebook": args.notebook, "splay": args.splay, "gap": args.gap, "column_splay": column_splay,
         "thumb_shift": list(thumb_shift), "dropped": sorted(dropped),
         "outline": [[round(x, 3), round(y, 3)] for x, y in outline],
+        "holes": [[[round(x, 3), round(y, 3)] for x, y in hole] for hole in (board_holes(notebook) if outline else [])],
         "corner_radius": notebook.get("board", {}).get("corner_radius"),
         "keys": keys,
     }, indent=2) + "\n")
