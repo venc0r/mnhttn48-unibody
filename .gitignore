@@ -1,6 +1,9 @@
-board/check/
-board/out/
-board/out.zip
-board/~*.lck
 board/*-backups/
+board/*.kicad_prl
+board/*.net.xml
+board/~*.lck
+board/check/
 board/fp-info-cache
+board/out.zip
+board/out/
+tools/__pycache__/

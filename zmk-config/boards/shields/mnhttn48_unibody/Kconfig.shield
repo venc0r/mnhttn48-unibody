@@ -1,0 +1,3 @@
+config SHIELD_MNHTTN48_UNIBODY
+    def_bool $(shields_list_contains,mnhttn48_unibody)
+    select SPI

@@ -1,0 +1,8 @@
+file_format: "1"
+id: mnhttn48_unibody
+name: mnhTTn48 unibody
+type: shield
+url: https://github.com/venc0r/mnhttn48-unibody
+requires: [seeed_xiao]
+features:
+  - keys

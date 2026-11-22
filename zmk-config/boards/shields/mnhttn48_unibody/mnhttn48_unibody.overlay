@@ -1,0 +1,74 @@
+/*
+ * mnhTTn48 unibody: one XIAO nRF52840 BLE and a 74HC595, 44 keys.
+ *
+ * The 595 drives the columns (COL_0..7 on QA..QH, key rows: left half 0..3, right half 4..7),
+ * the XIAO reads the rows (ROW_0..5 on D0..D5, finger columns pinky..inner plus the thumbs).
+ * Diodes point from the switch to the row: col2row. SPI: SCK D8, MOSI D10, latch (RCLK) on D9 as
+ * chip select. D9 is the board's default MISO, so the SPI pin setup leaves MISO out.
+ * See tools/check_matrix.py in this repo for the wiring check.
+ */
+
+#include <dt-bindings/pinctrl/nrf-pinctrl.h>
+#include "mnhttn48_unibody-layouts.dtsi"
+
+&spi2_default {
+    group1 {
+        psels = <NRF_PSEL(SPIM_SCK, 1, 13)>, <NRF_PSEL(SPIM_MOSI, 1, 15)>;
+    };
+};
+
+&spi2_sleep {
+    group1 {
+        psels = <NRF_PSEL(SPIM_SCK, 1, 13)>, <NRF_PSEL(SPIM_MOSI, 1, 15)>;
+        low-power-enable;
+    };
+};
+
+&xiao_serial { status = "disabled"; };   /* D6/D7 are not used */
+
+&xiao_spi {
+    status = "okay";
+    cs-gpios = <&xiao_d 9 GPIO_ACTIVE_LOW>;
+    shifter: 595@0 {
+        compatible = "zmk,gpio-595";
+        status = "okay";
+        gpio-controller;
+        spi-max-frequency = <200000>;
+        reg = <0>;
+        #gpio-cells = <2>;
+        ngpios = <8>;
+    };
+};
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &physical_layout0;
+    };
+
+    kscan0: kscan_0 {
+        compatible = "zmk,kscan-gpio-matrix";
+        diode-direction = "col2row";
+        wakeup-source;
+
+        col-gpios
+            = <&shifter 0 GPIO_ACTIVE_HIGH>
+            , <&shifter 1 GPIO_ACTIVE_HIGH>
+            , <&shifter 2 GPIO_ACTIVE_HIGH>
+            , <&shifter 3 GPIO_ACTIVE_HIGH>
+            , <&shifter 4 GPIO_ACTIVE_HIGH>
+            , <&shifter 5 GPIO_ACTIVE_HIGH>
+            , <&shifter 6 GPIO_ACTIVE_HIGH>
+            , <&shifter 7 GPIO_ACTIVE_HIGH>
+            ;
+
+        row-gpios
+            = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&xiao_d 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&xiao_d 3 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&xiao_d 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&xiao_d 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            ;
+    };
+};

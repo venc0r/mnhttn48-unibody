@@ -1,0 +1,36 @@
+{
+  "mbp14": {
+    "name": "MacBook Pro 14 (2026)",
+    "source": "pencil rubbing on the 1:1 print, scanned at 600 dpi, 2026-11-21",
+    "well": {"w": 280.3, "h": 115.2},
+    "envelope": {"x0": 0.0, "y0": 0.0, "x1": 280.3, "y1": 118.6},
+    "chassis": {"x0": -16.1, "x1": 296.4},
+    "board": {
+      "side_overhang": 2.0,
+      "top_rest": 10.0,
+      "top_rest_note": "deck between well and hinge is 12 mm (user, 2026-11-22), 2 mm kept free",
+      "bottom_rest": 61.4,
+      "bottom_rest_note": "fills the XPS depth limit of 190 mm: 10 + 118.6 + 61.4, edge lands at y 180 on the MBP palm rest",
+      "corner_radius": 3.0,
+      "trackpad_clearance": 0.5,
+      "trackpad_clearance_note": "notch wider than the trackpad on each side"
+    },
+    "keepouts": [
+      {"name": "Touch ID", "x0": 260.6, "y0": 3.2, "x1": 277.1, "y1": 17.2},
+      {"name": "speaker left", "x0": -16.1, "y0": 0.0, "x1": 0.0, "y1": 109.7},
+      {"name": "speaker right", "x0": 280.3, "y0": 0.0, "x1": 296.4, "y1": 109.7},
+      {"name": "trackpad", "x0": 75.15, "y0": 118.6, "x1": 205.15, "y1": 200.0,
+       "note": "130 mm wide measured on the MacBook (user, 2026-11-22), centred on the well; the rubbing gave 131"}
+    ]
+  },
+  "xps13": {
+    "name": "Dell XPS 13 9300",
+    "source": "user, 2026-11-21: largest board that does not overhang the chassis",
+    "well": {"w": 296.0, "h": 190.0},
+    "envelope": {"x0": 0.0, "y0": 0.0, "x1": 296.0, "y1": 190.0},
+    "chassis": {"x0": 0.0, "x1": 296.0},
+    "board_limit": {"w": 296.0, "h": 190.0},
+    "board_limit_note": "7 mm deck above the keys to the hinge, 78 mm below to the front edge, trackpad may be covered",
+    "keepouts": []
+  }
+}

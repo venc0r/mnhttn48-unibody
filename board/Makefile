@@ -1,38 +1,21 @@
-.PHONY: drill clean check-baseline check
+.PHONY: fab clean check-baseline check
 
 NAME := mnhttn48-unibody
 
-LAYERS := F.Cu B.Cu F.Paste B.Paste F.Silkscreen B.Silkscreen F.Mask B.Mask Edge.Cuts
+# JLCPCB PCB order (their KiCad 9 guide): Gerber X2 with Protel extensions (kicad-cli defaults),
+# Excellon drills in mm, decimal, absolute origin, PTH and NPTH separate, alternate oval mode.
+# F/B.Paste only for a stencil or assembly order.
+LAYERS := F.Cu,B.Cu,F.Mask,B.Mask,F.Silkscreen,B.Silkscreen,Edge.Cuts
 
-DRLS := $(addprefix out/$(NAME)-, $(addsuffix .drl, PTH NPTH))
-
-GBRS := $(addprefix out/$(NAME)-, $(addsuffix .gbr, $(LAYERS:.=_)))
-
-SPACE := $(subst ,, )
-COMMA := ,
-
-out.zip: $(DRLS) $(GBRS) | out
+fab:
+	rm -rf out out.zip
+	mkdir -p out
+	kicad-cli pcb export gerbers --layers $(LAYERS) --output out/ $(NAME).kicad_pcb
+	kicad-cli pcb export drill --format excellon --drill-origin absolute --excellon-units mm \
+		--excellon-zeros-format decimal --excellon-oval-format alternate --excellon-separate-th \
+		--output out/ $(NAME).kicad_pcb
 	zip -rv out.zip out
 
-out:
-	mkdir -p out
-
-$(DRLS) &: $(NAME).kicad_pcb | out
-	kicad-cli pcb export drill \
-		--format gerber \
-		--drill-origin absolute \
-		--excellon-units mm \
-		--excellon-zeros-format decimal \
-		--excellon-separate-th \
-		--output out/ \
-		$<
-
-$(GBRS) &: $(NAME).kicad_pcb | out
-	kicad-cli pcb export gerbers \
-		--layers $(subst $(SPACE),$(COMMA),$(strip $(LAYERS))) \
-		--output out/ \
-		$<
-	
 clean:
 	rm -fR out
 	rm -f out.zip
