@@ -21,7 +21,7 @@
 					(justify left)
 				)
 			)
-			(property "Value" "1N4148WS"
+			(property "Value" "1N4148W"
 				(at -3.81 -2.032 0)
 				(effects
 					(font
@@ -395,7 +395,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "1N4148WS"
+		(property "Value" "1N4148W"
 			(at 124.46 104.14 0)
 			(effects
 				(font
@@ -404,7 +404,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "mnhttn:D_SOD-323_HandSoldering"
+		(property "Footprint" "mnhttn:Diode_SOD123"
 			(at 124.46 106.68 90)
 			(effects
 				(font

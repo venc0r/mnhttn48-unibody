@@ -9,45 +9,56 @@ matrix) and the schematic netlist (exported with kicad-cli), writes board/mnhttn
 tools/drc.sh runs this and the DRC.
 
 Routing scheme (key frame = switch footprint coordinates, y down, KiCad rotation CCW positive;
-well coordinates = board/layout.json, board coordinates = well + ORIGIN):
-  COL bus    F.Cu at local y 10.2 through the keys of a physical row, stub from switch pad 2
-             (entered at (1.75, 3.65) through solid material beside the pocket) via (1.0, 4.4).
-             The bus ends in a via on its lane: B.Cu verticals at x 10..13 in the frame of the
-             inner column's top key, which jog on B.Cu above the top key to global verticals
-             beside the centre and run down to vias beside the shift register. Thumb keys reach
-             the lane ends of rows 0/1 (frame y 62, under the row 3 bus) on F.Cu along their
-             inner cell edge.
-  anode band Each key's switch pad 1 leaves on B.Cu to the row gap below the switch (local y
-             8.4 - 0.75 c, c = finger column 0 pinky .. 4 inner, the pinky lowest) and runs
+well coordinates = board/layout.json, board coordinates = well + ORIGIN). In a switch cell B.Cu
+is free except the pins (local x -1..3, y 0.4..4.2); F.Cu also carries the four housing pads, so
+F.Cu tracks keep to the row gap (local y 6.3..10.7) or to x beyond +-7.3. One via per key: the
+finger anodes stay on F.Cu from the switch to the diode, every cathode drops onto B.Cu.
+  COL bus    B.Cu at local y -2 through the keys of a physical row (above the pins), stub from
+             pad 2's upper annulus (2.165, 0.75). It ends on its lane: B.Cu verticals at x
+             10..13 in the frame of the inner column's top key, which turn towards the centre
+             where they reach the height of their via beside the shift register (REGISTER_VIAS,
+             the lane nearest the centre turns lowest). Lanes 0/1 reach down to the thumbs, so
+             rows 1-3 cross them on an F.Cu bridge (via at x 9.2 beside the inner key, via on
+             the lane); row 0 needs none.
+             Thumb keys reach the lane ends of rows 0/1 on F.Cu along their cell edges: up the
+             inner edge, the inner thumb then along its top strip to the lane end at its outer
+             top corner.
+  anode band Each key's switch pad 1 leaves on F.Cu to the row gap below the switch (local y
+             9.8 - 0.75 c, c = finger column 0 pinky .. 4 inner, the pinky lowest) and runs
              inward through the cells of its row. Where the next cell sits higher or lower
              (column splay) every passing track climbs on its own staircase lane at the inner
-             edge of the outer cell (local x 7 + 0.75 n), ordered so nothing crosses. In the
-             inner key the tracks drop to via A (local (4.5 + c, 9.2)), bridge the lanes on F.Cu
-             at local y 6.4 + 0.5 c and go back to B.Cu at via B (frame x 15.5 + c, y 4.6 of the
-             inner column), then run horizontally into the diode block on levels 1.2 mm apart,
-             the innermost via B on the highest level so no line passes under another via.
-  diodes     One block per half in the centre, four mini rows of five SOD-323 (net column c at
-             x centre -/+ (11.3 - 1.9 c), vertical, anode on top) at the height of their key row
-             plus two thumb diodes in column 5 (7 mm apart, above the bottom band). Thumb anodes
-             run parallel to their switch inside a cell and horizontally in between (B.Cu is free
-             in a cell's top strip): the inner thumb's along its top strip to its inner edge at
-             its diode's height, the outer thumb's along its own top strip, across the gap, along
-             the inner thumb's top strip (local y -7.5) down to its diode's height; both then
-             straight into the block, below the row 3 crossbars. Via C on the
-             B.Cu line drops on F.Cu into the anode; cathodes join F.Cu buses (one per net,
-             x_c + 0.95) that run down to the bottom band.
+             edge of the outer cell (local x 7.4 + 0.5 n, right of the housing pads), ordered so
+             nothing crosses. Past the inner key track c turns at local x 9.5 + 1.2 (4 - c) to
+             global horizontal and runs straight into its diode column; the top track turns
+             first, so the turns stack the lines 1.1 mm apart with the innermost column on top.
+  diodes     One block per half in the centre, four mini rows of five SOD-123 (column c at
+             x centre -/+ (11.3 - 1.9 c), vertical, anode on top, fed on F.Cu from the line
+             above it) at the height of their key row, plus the two thumb diodes in an outer
+             column at centre -/+ 13.2. Thumb anodes stay on B.Cu, because the row 3 lines leave
+             the inner key right above the thumbs on F.Cu: parallel to the switch inside the
+             cell, horizontal from the inner edge into the outer column, below the row 3 lines
+             and the lane ends, one via at the diode. Cathodes: F.Cu stub to a via 1.6 mm below
+             the pad, B.Cu bus (one per net, x_c + 0.95) down to the bottom band.
   ROW nets   bottom band on B.Cu (well y 113.6 + 0.8 (5 - row), above the trackpad notch edge)
              from both blocks leftwards under the thumbs into the left palm rest leg, up the
              left margin (well x 1 + row) and from below into the XIAO's bottom pad row D0..D5.
+             Right block lines start at their bus, a line further right lies lower, so they meet
+             without crossings; only the thumbs' bus (outer column) hops over the block on F.Cu.
+             Under the left block every bus but the thumbs' (top line) hops over the lines above
+             its own on F.Cu.
   XIAO       top left corner, rotated 90 so the USB-C points left out of the board. Top pad row
              (5V, GND, 3V3, MOSI, CS, SCK, D7) is entered from below by the strip lines (B.Cu at
              LINE_Y). SW1 (reset, pads in two columns) sits below it, RST and the SW1 GND leave
              the XIAO between its bottom pads. SW2 (power), the battery pads and the battery sit
              in the centre above the register; +BATT leaves the
-             XIAO on B.Cu, hops to F.Cu and runs along the top edge, BAT- hangs on the GND line.
+             XIAO on B.Cu, hops to F.Cu and runs as the top strip line (LINE_Y, 0.75 above SCK),
+             BAT- hangs on the GND line.
   register   74HC595 rotated 90 (pins 1..8 bottom row, 9..16 top row) at well y 26 in the centre,
-             risers on F.Cu up to the strip lines, C1 right of it, VCC tied to SRCLR under the
-             chip, GND pin 8 through a riser right of the chip.
+             risers on F.Cu straight up from the pins to the strip lines. 3V3 is taken at VCC
+             (pin 16) and GND drops left of it, so the strip vias climb left to right (GND, 3V3,
+             MOSI, CS, SCK). SRCLR hangs on VCC by a tie under the chip and feeds C1 above the
+             pin row. GND runs at C1's height on B.Cu past ~OE (pin 13) to C1's GND pad, a short
+             riser right of the chip joins C1 and GND pin 8.
 """
 
 import json
@@ -68,27 +79,34 @@ NETLIST_PATH = BOARD_DIR / f"{PROJECT}.net.xml"
 ORIGIN = (8.35, 20.0)          # well coordinates -> board coordinates, board centred on the A4 sheet
 TRACK = 0.25
 VIA_SIZE, VIA_DRILL = 0.8, 0.4
-BOARD_THICKNESS = 2.0
+BOARD_THICKNESS = 1.6
 
-DIODE_FOOTPRINT = "D_SOD-323_HandSoldering"
-COL_Y = 10.2                   # COL bus y in the key frame (below the band, the bridges and the lane via)
-BAND_Y0, BAND_STEP = 8.4, 0.75 # anode band levels in the key frame, pinky lowest
+DIODE_FOOTPRINT = "Diode_SOD123"
+COL_Y = -2.0                   # COL bus on B.Cu in the key frame, above the pins (B.Cu is free there)
+COL_PAD = (2.165, 0.75)        # COL stub enters pad 2's upper annulus, above its pocket
+BAND_Y0, BAND_STEP = 9.8, 0.75 # anode band levels on F.Cu, in the row gap below the housing pads, pinky lowest
 CELL_W, CELL_H = 18.0, 17.0
 LANE_X = {0: 10.0, 1: 11.0, 2: 12.0, 3: 13.0}
-LANE_TOP_Y = -CELL_H / 2 + 2.0
 LANE_BOTTOM_Y = {0: 62.0, 1: 62.0, 2: 2 * CELL_H + COL_Y, 3: 3 * CELL_H + COL_Y}
-VIA_A_X, VIA_A_Y, VIA_B_X, VIA_B_Y = 4.5, 9.2, 15.5, 4.6   # anode band hops around the lanes
-BRIDGE_Y0, BRIDGE_STEP = 6.4, 0.5   # F.Cu bridge levels in the inner key (below the housing pad, above via A)
-CROSSBAR_STEP = 1.2            # B.Cu levels into the diode block
-THUMB_TOP_STRIP_Y = -7.5      # outer thumb anode in the inner thumb's cell (B.Cu is free above the pins)
-STEP_LANE_X0, STEP_LANE_PITCH = 7.0, 0.75   # staircase lanes between two cells of a row (outer cell frame)
-GLOBAL_LANE_DX = {0: 12.5, 1: 13.5, 2: 14.5, 3: 15.5}
-JOG_ORDER = {0: 3, 1: 2, 2: 1, 3: 0}
-LINE_Y = {"gnd": -1.4, "v33": -2.15, "mosi": -2.9, "cs": -3.65, "sck": -4.4}   # strip lines, well y
+COL_BRIDGE_X = 9.2             # rows 1-3: via beside the inner key, F.Cu bridge over the lanes
+COL_STEP_X = 8.5               # COL bus steps between splayed cells inside the next cell, this far from its centre
+TURN_X0, TURN_STEP = 9.5, 1.2  # band track c turns to global horizontal at inner key x TURN_X0 + TURN_STEP (4 - c)
+CATHODE_VIA_DY = 1.6           # cathode via below the cathode pad
+BAND_HOP_DY = 0.8              # buses that cross bottom band lines hop on F.Cu from this far above the band
+THUMB_PITCH = 7.0              # thumb diodes in the outer block column
+THUMB_EXIT_LY = -8.0           # the inner thumb's anode crosses its inner edge no higher than this (local y)
+THUMB_COL_TOP_LY = -8.0        # inner thumb COL along the top strip of its cell (F.Cu is free above the housing pads)
+STEP_LANE_X0, STEP_LANE_PITCH = 7.4, 0.5    # staircase lanes between two cells of a row, right of the housing pads, before the next cell
+LINE_Y = {"gnd": -1.4, "v33": -2.15, "mosi": -2.9, "cs": -3.65, "sck": -4.4, "batt": -5.15}   # strip lines, well y (+BATT on F.Cu)
 XIAO_POS, XIAO_ROT = (8.0, 0.5), 90
 REG_Y = 26.0                   # well y of the shift register
-BLOCK_DX0, BLOCK_PITCH = 11.3, 1.9      # diode columns at centre -/+ (BLOCK_DX0 - BLOCK_PITCH c)
-BUS_DX = 0.95                  # cathode bus offset from the diode column, towards the centre
+REGISTER_VIAS = {              # COL net -> (via offset from the register centre, pin); QA (COL_0) is on the top row
+    0: ((-3.175, -6.5), "15"),
+    1: ((-4.4, 6.5), "1"), 2: ((-3.2, 7.5), "2"), 3: ((-1.9, 8.5), "3"),
+    4: ((-0.6, 5.5), "4"), 5: ((0.6, 6.5), "5"), 6: ((1.9, 7.5), "6"), 7: ((3.2, 8.5), "7"),
+}
+BLOCK_DX0, BLOCK_PITCH = 12.9, 2.3      # diode columns at centre -/+ (BLOCK_DX0 - BLOCK_PITCH c)
+BUS_DX = 1.15                  # cathode bus offset from the diode column, towards the centre
 BAND_WELL_Y, BAND_PITCH = 113.6, 0.8   # bottom band lines ROW_0..5, well y
 MARGIN_X = {row: 1.0 + row for row in range(6)}       # ROW buses up the left margin, well x
 PAD_ENTRY_Y = {row: 10.6 + 0.75 * row for row in range(6)}   # into D0..D5 from below, well y
@@ -120,11 +138,6 @@ class Frame:
         """Local y of the point on the local vertical x = lx that lies at global y gy."""
         radians = math.radians(-self.rot)
         return (gy - self.y - lx * math.sin(radians)) / math.cos(radians)
-
-    def lx_at(self, ly, gy):
-        """Local x of the point on the local horizontal y = ly that lies at global y gy."""
-        radians = math.radians(-self.rot)
-        return (gy - self.y - ly * math.cos(radians)) / math.sin(radians)
 
 
 def point_at_y(frame, lx, inner, inner_y, ly0=4.7, ly1=-CELL_H / 2 - 1.0):
@@ -274,19 +287,20 @@ def band_y(column):
     return BAND_Y0 - BAND_STEP * column
 
 
-def bridge_y(column):
-    return BRIDGE_Y0 + BRIDGE_STEP * column
+def turn_x(column):
+    return TURN_X0 + TURN_STEP * (4 - column)
 
 
 def key_cell_tracks(board, frame, sw, diode, column):
-    """COL stub on F.Cu and the anode's drop to its band level on B.Cu."""
-    board.track(board.net_of(sw, "2"), pcbnew.F_Cu, [frame.g(1.75, 3.65), frame.g(1.0, 4.4), frame.g(1.0, COL_Y)])
-    board.track(board.net_of(diode, "2"), pcbnew.B_Cu, [frame.g(0.41, 3.65), frame.g(-0.6, 4.7), frame.g(-0.6, band_y(column))])
+    """COL stub on B.Cu up to the bus, the anode's drop to its band level on F.Cu."""
+    board.track(board.net_of(sw, "2"), pcbnew.B_Cu, [frame.g(*COL_PAD), frame.g(COL_PAD[0], COL_Y)])
+    board.track(board.net_of(diode, "2"), pcbnew.F_Cu, [frame.g(0.41, 3.65), frame.g(-0.6, 4.7), frame.g(-0.6, band_y(column))])
 
 
 def route_half(board, half_name, keys, frames, matrix, centre_x, oy):
-    """COL buses, lanes and anode bands of one half. Returns the B vias per (row, column) and the thumbs."""
+    """COL buses, lanes and anode bands of one half. Returns where each band track turns towards the block."""
     sign = 1 if half_name == "left" else -1
+    F, B = pcbnew.F_Cu, pcbnew.B_Cu
     columns, rows, thumbs = {}, {}, []
     for key in keys:
         ref = key["ref"]
@@ -303,49 +317,59 @@ def route_half(board, half_name, keys, frames, matrix, centre_x, oy):
     lane_x = {r: sign * x for r, x in LANE_X.items()}
     col_net = {col: board.net_of(members[0][1], "2") for col, members in rows.items()}
     anode_net = lambda ref: board.net_of(ref.replace("SW_L_4_", "D_L_4_"), "2")
-    out = {"b_via": {}, "thumbs": thumbs, "sign": sign, "inner": inner, "rows": rows}
+    out = {"band_end": {}, "thumbs": thumbs, "sign": sign, "inner": inner, "rows": rows}
 
-    # COL buses along the rows on F.Cu, ending in a via on the lane
+    # COL buses on B.Cu along the rows, above the pins. Row 0 runs straight into its lane, rows 1-3
+    # cross the lanes of rows 0/1 (they reach down to the thumbs) on an F.Cu bridge.
     for col, members in rows.items():
         key_row = col % 4
-        points = [frames[members[0][1]].g(1.0, COL_Y)]
+        net = col_net[col]
+        points = [frames[members[0][1]].g(COL_PAD[0], COL_Y)]
         for index, (_, ref) in enumerate(members):
             if index < len(members) - 1:
-                points.append(frames[ref].g(sign * CELL_W / 2, COL_Y))
-                points.append(frames[members[index + 1][1]].g(-sign * CELL_W / 2, COL_Y))
+                # step to the next cell's bus height inside that cell, parallel to its side edge
+                outer, nxt = frames[ref], frames[members[index + 1][1]]
+                edge_point = outer.g(sign * CELL_W / 2, COL_Y)
+                step_x = -sign * COL_STEP_X
+                points += [edge_point, nxt.g(step_x, nxt.local(*edge_point)[1]), nxt.g(step_x, COL_Y)]
         lane_point = inner.g(lane_x[key_row], key_row * CELL_H + COL_Y)
-        points.append(lane_point)
-        board.track(col_net[col], pcbnew.F_Cu, points)
-        board.via(col_net[col], *lane_point)
+        if key_row == 0:
+            board.track(net, B, points + [lane_point])
+        else:
+            bridge = inner.g(sign * COL_BRIDGE_X, key_row * CELL_H + COL_Y)
+            board.track(net, B, points + [bridge])
+            board.via(net, *bridge)
+            board.track(net, F, [bridge, lane_point])
+            board.via(net, *lane_point)
 
-    # lanes on B.Cu and their jogs to the global verticals
+    # lanes on B.Cu up the inner column; each turns towards the register where it reaches its via's
+    # height (the lane nearest the centre lowest, so the turns nest), COL_0 runs on above the chip
     first_col = 0 if sign == 1 else 4
-    lane_top = {}
     for key_row, x in lane_x.items():
-        top = inner.g(x, LANE_TOP_Y)
-        board.track(col_net[first_col + key_row], pcbnew.B_Cu, [top, inner.g(x, LANE_BOTTOM_Y[key_row])])
-        lane_top[key_row] = top
-    top_min = min(point[1] for point in lane_top.values())
-    out["global"] = {}
-    for key_row, top in lane_top.items():
-        jog_y = top_min - 1.0 - 1.0 * JOG_ORDER[key_row]
-        gx = centre_x - sign * GLOBAL_LANE_DX[key_row]
-        board.track(col_net[first_col + key_row], pcbnew.B_Cu, [top, (top[0], jog_y), (gx, jog_y)])
-        out["global"][key_row] = (gx, jog_y)
+        (dx, dy), _ = REGISTER_VIAS[first_col + key_row]
+        via = (centre_x + dx, oy + REG_Y + dy)
+        turn = inner.g(x, inner.ly_at(x, via[1]))
+        board.track(col_net[first_col + key_row], B, [inner.g(x, LANE_BOTTOM_Y[key_row]), turn, via])
+    out["lane_ends"] = [inner.g(lane_x[r], LANE_BOTTOM_Y[r]) for r in (0, 1)]
 
-    # thumbs: COL on F.Cu along the inner cell edge up to just below the lane end (via there)
+    # thumbs: COL on F.Cu along the cell edges to the lane end (via there): up the inner edge, and
+    # if the lane end lies beyond the outer side (inner thumb), along the top strip to it
     for col, ref in thumbs:
         f = frames[ref]
         key_row = col % 4
         lane_end = inner.g(lane_x[key_row], LANE_BOTTOM_Y[key_row])
-        meet = point_at_y(f, sign * CELL_W / 2, inner, LANE_BOTTOM_Y[key_row] + 0.45, ly0=7.0)
-        board.track(col_net[col], pcbnew.F_Cu, [f.g(1.0, 4.4), f.g(1.0, 7.0), f.g(sign * CELL_W / 2, 7.0), meet, lane_end])
+        path = [f.g(1.0, 4.4), f.g(1.0, 7.0), f.g(sign * CELL_W / 2, 7.0)]
+        if f.local(*lane_end)[0] * sign < 0:
+            path += [f.g(sign * CELL_W / 2, THUMB_COL_TOP_LY), f.g(-sign * CELL_W / 2, THUMB_COL_TOP_LY)]
+        else:
+            path.append(point_at_y(f, sign * CELL_W / 2, inner, LANE_BOTTOM_Y[key_row] + 0.45, ly0=7.0))
+        board.track(col_net[col], F, path + [lane_end])
         board.via(col_net[col], *lane_end)
 
-    # anode bands: inward through the row on B.Cu. Between two cells every passing track climbs or
+    # anode bands: inward through the row on F.Cu. Between two cells every passing track climbs or
     # descends on its own staircase lane in the outer cell (the next cell sits higher or lower),
-    # ordered so nothing crosses. In the inner key the tracks drop to via A, bridge the lanes on
-    # F.Cu on their own level and go back to B.Cu at via B outside the cell.
+    # ordered so nothing crosses. Past the inner key each track turns towards the block at its
+    # band end, the top one first, so the turns stack the tracks without crossings.
     for col, members in rows.items():
         key_row = col % 4
         inner_key = frames[members[-1][1]]
@@ -358,19 +382,12 @@ def route_half(board, half_name, keys, frames, matrix, centre_x, oy):
             ascending = sum(climbs.values()) < 0
             order = sorted(passing, key=lambda c: band_y(c), reverse=not ascending)
             for lane, c in enumerate(order):
-                lane_x = sign * (STEP_LANE_X0 + STEP_LANE_PITCH * lane)
-                paths[c] += [outer.g(lane_x, band_y(c)), outer.g(lane_x, band_y(c) + climbs[c]), targets[c]]
+                step_x = sign * (STEP_LANE_X0 + STEP_LANE_PITCH * lane)
+                paths[c] += [outer.g(step_x, band_y(c)), outer.g(step_x, band_y(c) + climbs[c]), targets[c]]
         for column, (_, ref) in enumerate(members):
-            net = anode_net(ref)
-            ax = sign * (VIA_A_X + 1.0 * column)
-            via_a = inner_key.g(ax, VIA_A_Y)
-            board.track(net, pcbnew.B_Cu, paths[column] + [inner_key.g(ax, band_y(column)), via_a])
-            board.via(net, *via_a)
-            bx = sign * (VIA_B_X + 1.0 * column)
-            via_b = inner.g(bx, key_row * CELL_H + VIA_B_Y)
-            board.track(net, pcbnew.F_Cu, [via_a, inner_key.g(ax, bridge_y(column)), inner_key.g(bx, bridge_y(column)), via_b])
-            board.via(net, *via_b)
-            out["b_via"][(key_row, column)] = via_b
+            end = inner_key.g(sign * turn_x(column), band_y(column))
+            board.track(anode_net(ref), F, paths[column] + [end])
+            out["band_end"][(key_row, column)] = end
     return out
 
 
@@ -378,76 +395,83 @@ def route_half(board, half_name, keys, frames, matrix, centre_x, oy):
 
 
 def route_block(board, half, frames, cx, ox, oy):
-    """Diode block of one half: mini rows at the key rows' heights, cathode buses down to the band."""
+    """Diode block of one half: mini rows at the key rows' heights fed on F.Cu, the thumbs fed on
+    B.Cu in the outer column, every cathode through a via onto a B.Cu bus down to the bottom band."""
     sign = half["sign"]
-    inner = half["inner"]
     F, B = pcbnew.F_Cu, pcbnew.B_Cu
-    diode_x = {c: cx - sign * (BLOCK_DX0 - BLOCK_PITCH * c) for c in range(6)}
+    diode_x = {c: cx - sign * (BLOCK_DX0 - BLOCK_PITCH * c) for c in range(5)}
+    diode_x[5] = cx - sign * (BLOCK_DX0 + BLOCK_PITCH)
     bus_x = {c: diode_x[c] + sign * BUS_DX for c in range(6)}
-    cathodes = {c: [] for c in range(6)}
+    cathode_vias = {c: [] for c in range(6)}
 
-    def place_diode(ref, x, level):
-        """Diode below `level` with the anode on top, via C on the B.Cu line above it, F.Cu drop."""
+    def place_diode(ref, column, level):
+        """Diode below `level` with the anode on top, fed on F.Cu from `level`, cathode via below it."""
+        x = diode_x[column]
         board.place(ref, DIODE_FOOTPRINT, x, level + 3.85, 90, hide_reference=True)
-        net = board.net_of(ref, "2")
-        board.via(net, x, level)
-        board.track(net, F, [(x, level), board.pad_xy(ref, "2")])
-        cathodes[column_of[ref]].append(board.pad_xy(ref, "1"))
+        board.track(board.net_of(ref, "2"), F, [(x, level), board.pad_xy(ref, "2")])
+        cathode = board.pad_xy(ref, "1")
+        via = (bus_x[column], cathode[1] + CATHODE_VIA_DY)
+        board.track(board.net_of(ref, "1"), F, [cathode, via])
+        board.via(board.net_of(ref, "1"), *via)
+        cathode_vias[column].append(via)
 
-    column_of = {}
-    for col, members in half["rows"].items():
-        for column, (_, ref) in enumerate(members):
-            column_of[ref.replace("SW_L_4_", "D_L_4_")] = column
-    for _, ref in half["thumbs"]:
-        column_of[ref.replace("SW_L_4_", "D_L_4_")] = 5
-
+    # rows: every band track runs horizontally from its band end into its column
     lowest_level = 0.0
     for col, members in half["rows"].items():
         key_row = col % 4
-        base_y = max(half["b_via"][(key_row, c)][1] for c in range(5))
         for column, (_, ref) in enumerate(members):
             diode = ref.replace("SW_L_4_", "D_L_4_")
-            net = board.net_of(diode, "2")
-            via_b = half["b_via"][(key_row, column)]
-            level = base_y + CROSSBAR_STEP * (5 - column)
-            board.track(net, B, [via_b, (via_b[0] + sign * 0.5, level), (diode_x[column], level)])
-            place_diode(diode, diode_x[column], level)
-            lowest_level = max(lowest_level, level)
-    # thumbs: parallel to their switch inside a cell, horizontal in between. The inner thumb's
-    # anode runs along its cell's top strip to the inner edge, which it crosses at its diode's
-    # height, and straight into column 5. The outer thumb's runs along its own top strip,
-    # horizontally across the gap into the inner thumb's top strip, along it down to its diode's
-    # height and straight into column 5, above the inner thumb's line.
+            end = half["band_end"][(key_row, column)]
+            board.track(board.net_of(diode, "2"), F, [end, (diode_x[column], end[1])])
+            place_diode(diode, column, end[1])
+            lowest_level = max(lowest_level, end[1])
+
+    # thumbs: anodes on B.Cu, because the row 3 tracks leave the inner key above the thumbs on F.Cu.
+    # Parallel to the switch inside the cell, horizontal from its inner edge into the outer column,
+    # below the row 3 tracks and the lane ends; a via at the diode.
     (_, outer_ref), (_, inner_ref) = half["thumbs"]
-    outer, inner_thumb = frames[outer_ref], frames[inner_ref]
     edge = sign * CELL_W / 2
-    levels = [lowest_level + CROSSBAR_STEP + 7.0 * index for index in range(2)]
-
-    def leave_upwards(f, ly):
-        return [f.g(0.41, 3.65), f.g(-0.6, 4.7), f.g(-3.0, 4.7), f.g(-3.0, ly)]
-
-    inner_ly = inner_thumb.ly_at(edge, levels[1])
-    inner_path = leave_upwards(inner_thumb, inner_ly) + [inner_thumb.g(edge, inner_ly), (diode_x[5], levels[1])]
-    gap_point = inner_thumb.g(-edge, THUMB_TOP_STRIP_Y)
-    outer_ly = outer.ly_at(edge, gap_point[1])
-    knee = inner_thumb.g(inner_thumb.lx_at(THUMB_TOP_STRIP_Y, levels[0]), THUMB_TOP_STRIP_Y)
-    outer_path = leave_upwards(outer, outer_ly) + [outer.g(edge, outer_ly), gap_point, knee, (diode_x[5], levels[0])]
-    for ref, path, level in ((outer_ref, outer_path, levels[0]), (inner_ref, inner_path, levels[1])):
+    level_outer = max(lowest_level, max(y for _, y in half["lane_ends"])) + 0.8
+    level_inner = max(level_outer + THUMB_PITCH, frames[inner_ref].g(edge, THUMB_EXIT_LY)[1])
+    for ref, level in ((outer_ref, level_outer), (inner_ref, level_inner)):
+        f = frames[ref]
+        ly = f.ly_at(edge, level)
         diode = ref.replace("SW_L_4_", "D_L_4_")
-        board.track(board.net_of(diode, "2"), B, path)
-        place_diode(diode, diode_x[5], level)
-    # cathode buses: F.Cu verticals beside the column, stubs from every cathode, down to the band
-    out = {"band_via_x": {}}
+        net = board.net_of(diode, "2")
+        board.track(net, B, [f.g(0.41, 3.65), f.g(-0.6, 4.7), f.g(-3.0, 4.7), f.g(-3.0, ly), f.g(edge, ly),
+                             (diode_x[5], level)])
+        board.via(net, diode_x[5], level)
+        place_diode(diode, 5, level)
+
+    # cathode buses on B.Cu down to the bottom band, whose lines run leftwards under both blocks.
+    # In the right block a line that starts further right lies lower, so its buses meet their lines
+    # without crossings; only the thumbs' bus in the outer column hops over the block on F.Cu. In
+    # the left block every bus but the thumbs' (top line) hops over the lines above its own.
+    right_block = sign == -1
+    band_top = oy + BAND_WELL_Y
+    hop_y = band_top - BAND_HOP_DY
+    out = {"line_start_x": {}}
     for column in range(6):
         net = board.net_of("U1", str(column + 1))
         x = bus_x[column]
-        pads = sorted(cathodes[column], key=lambda p: p[1])
-        band_y_row = oy + BAND_WELL_Y + BAND_PITCH * (5 - column)
-        board.track(net, F, [(x, pads[0][1] + 0.5), (x, band_y_row)])
-        board.via(net, x, band_y_row)
-        for pad in pads:
-            board.track(net, F, [pad, (x, pad[1] + 0.5)])
-        out["band_via_x"][column] = x
+        top = min(y for _, y in cathode_vias[column])
+        line_y = band_top + BAND_PITCH * (5 - column)
+        if column == 5 and right_block:
+            start = cx + 1.0
+            board.track(net, B, [(x, top), (x, hop_y)])
+            board.via(net, x, hop_y)
+            board.track(net, F, [(x, hop_y), (start, hop_y)])
+            board.via(net, start, hop_y)
+            board.track(net, B, [(start, hop_y), (start, line_y)])
+            out["line_start_x"][column] = start
+        elif column == 5 or right_block:
+            board.track(net, B, [(x, top), (x, line_y)])
+            out["line_start_x"][column] = x
+        else:
+            board.track(net, B, [(x, top), (x, hop_y)])
+            board.via(net, x, hop_y)
+            board.track(net, F, [(x, hop_y), (x, line_y)])
+            board.via(net, x, line_y)
     return out
 
 
@@ -471,11 +495,15 @@ def route_electronics(board, left_block, right_block, cx, ox, oy):
 
     board.place("U1", "xiao-ble-smd-cutout", *w(*XIAO_POS), XIAO_ROT)
     board.place("U2", "SOIC-16_3.9x9.9mm_P1.27mm", cx, oy + REG_Y, 90)
-    board.place("C1", "C_0603_1608Metric", cx + 8.5, oy + REG_Y - 5.0, 0)
+    board.place("C1", "C_0603_1608Metric", cx + 6.5, oy + REG_Y - 8.0, 0)   # above the pin row, clear of the GND riser
     board.place("SW1", "PushSwitch", *w(13.0, 20.0), 90)
     board.place("SW2", "MSK12C02", cx - 24.0, oy + 0.8, 90)   # pins up, locating pins just below the GND line
     board.place("BAT+1", "BatteryPad", cx - 22.0, oy + 8.0, 0)
     board.place("BAT-1", "BatteryPad", cx - 16.0, oy + 8.0, 0)
+    for ref in ("BAT+1", "BAT-1"):         # JLCPCB prints silkscreen text from 1.0 mm height, 0.15 mm stroke
+        label = board.footprints[ref].Value()
+        label.SetTextSize(vec(1.0, 1.0))
+        label.SetTextThickness(mm(0.15))
     if pad("C1", "1")[0] > pad("C1", "2")[0]:
         board.footprints["C1"].SetOrientationDegrees(180)
     for number in ("1", "2"):
@@ -491,49 +519,52 @@ def route_electronics(board, left_block, right_block, cx, ox, oy):
         band = oy + BAND_WELL_Y + BAND_PITCH * (5 - row)
         margin_x = ox + MARGIN_X[row]
         target = pad("U1", str(row + 1))
-        board.track(net, B, [(right_block["band_via_x"][row], band), (margin_x, band),
+        board.track(net, B, [(right_block["line_start_x"][row], band), (margin_x, band),
                              (margin_x, oy + PAD_ENTRY_Y[row]), (target[0], oy + PAD_ENTRY_Y[row]), target])
 
-    # COL lanes from the jog points down to vias beside the shift register, F.Cu into the pads
-    via_for = {
-        0: ((-4.5, -6.5), "15", [(-3.2, -5.0)]),
-        1: ((-4.4, 6.5), "1", []), 2: ((-3.2, 7.5), "2", []), 3: ((-1.9, 8.5), "3", []),
-        4: ((-0.6, 5.5), "4", []), 5: ((0.6, 6.5), "5", []), 6: ((1.9, 7.5), "6", []), 7: ((3.2, 8.5), "7", []),
-    }
-    for side, sign in ((left_block["half"], 1), (right_block["half"], -1)):
-        for key_row in (0, 1, 2, 3):
-            col = (0 if sign == 1 else 4) + key_row
-            via_rel, number, path = via_for[col]
-            net = board.net_of("U2", number)
-            start = side["global"][key_row]
-            via_point = reg(*via_rel)
-            board.track(net, B, [start, (start[0], via_point[1]), via_point])
-            board.via(net, *via_point)
-            board.track(net, F, [via_point] + [reg(*p) for p in path] + [pad("U2", number)])
+    # COL lanes end in vias beside the shift register, F.Cu straight into the pads
+    for (dx, dy), number in REGISTER_VIAS.values():
+        net = board.net_of("U2", number)
+        board.via(net, *reg(dx, dy))
+        board.track(net, F, [reg(dx, dy), pad("U2", number)])
 
-    # SPI, 3V3 and GND lines from the XIAO's top row (entered from below) to the register's risers
-    riser = {"mosi": ("14", cx - 1.9), "cs": ("12", cx + 0.6), "sck": ("11", cx + 1.9), "v33": ("10", cx + 3.2), "gnd": ("13", cx - 0.6)}
+    # SPI, 3V3 and GND lines from the XIAO's top row (entered from below) to the register's risers.
+    # Each riser rises straight from its pin; with 3V3 taken at pin 16 (pin 10 hangs on the tie under
+    # the chip) and GND dropping left of it, the vias climb from left to right in the lines' order
+    # (GND, 3V3, MOSI, CS, SCK). GND comes down to C1's height and runs on B.Cu past ~OE (pin 13)
+    # to C1's GND pad; a short riser right of the chip joins C1 and GND pin 8.
+    riser_pin = {"v33": "16", "mosi": "14", "cs": "12", "sck": "11"}
     gnd_right = cx + 9.275
+    gnd_drop = (pad("U2", "16")[0] - 1.25, line_y["gnd"])
     for name, number in (("gnd", "13"), ("v33", "12"), ("mosi", "11"), ("cs", "10"), ("sck", "9")):
         px, py = pad("U1", number)
         if name == "gnd":
             start = (px + 1.0, line_y[name])
             board.track(nets[name], B, [start, (start[0], py + 2.0), (px, py + 1.2), (px, py)])
-            board.track(nets[name], B, [start, (gnd_right, line_y[name])])
-        else:
-            board.track(nets[name], B, [(px, py), (px, line_y[name]), (riser[name][1], line_y[name])])
-        top = pad("U2", riser[name][0])
+            board.track(nets[name], B, [start, gnd_drop])
+            continue
+        top = pad("U2", riser_pin[name])
+        board.track(nets[name], B, [(px, py), (px, line_y[name]), (top[0], line_y[name])])
         board.track(nets[name], F, [top, (top[0], line_y[name])])
         board.via(nets[name], top[0], line_y[name])
     p13, p18, p20 = pad("U1", "13"), pad("U1", "18"), pad("U1", "20")
     board.track(nets["gnd"], B, [(p18[0] + 0.53, p18[1]), (p13[0] + 1.0, p18[1]), (p13[0] + 1.0, p13[1] + 2.0)])
     board.track(nets["gnd"], B, [(p20[0] - 0.58, p20[1] + 0.3), (p13[0] + 1.0, p20[1] + 0.3), (p13[0] + 1.0, p18[1])])
     board.track(nets["v33"], F, [pad("U2", "16"), reg(-4.4, -1.0), reg(3.2, -1.0), pad("U2", "10")])
-    board.track(nets["v33"], F, [reg(3.2, -5.0), reg(7.0, -5.0), pad("C1", "1")])
+    pin10, c1_v33, c1_gnd = pad("U2", "10"), pad("C1", "1"), pad("C1", "2")
+    v33_y = c1_v33[1] + 1.6        # below the GND line that runs at C1 height on B.Cu
+    board.track(nets["v33"], F, [pin10, (pin10[0], v33_y), (c1_v33[0], v33_y), c1_v33])
     pin8 = pad("U2", "8")
-    board.track(nets["gnd"], F, [pin8, (gnd_right, pin8[1]), (gnd_right, line_y["gnd"])])
-    board.via(nets["gnd"], gnd_right, line_y["gnd"])
-    board.track(nets["gnd"], F, [(gnd_right, pad("C1", "2")[1]), pad("C1", "2")])
+    board.track(nets["gnd"], F, [pin8, (gnd_right, pin8[1]), (gnd_right, c1_gnd[1]), c1_gnd])
+    gnd_down = (gnd_drop[0], c1_gnd[1])
+    oe_pin = pad("U2", "13")
+    oe_via, c1_via = (oe_pin[0], c1_gnd[1]), ((c1_gnd[0] + gnd_right) / 2, c1_gnd[1])
+    board.via(nets["gnd"], *gnd_drop)
+    board.track(nets["gnd"], F, [gnd_drop, gnd_down])
+    board.track(nets["gnd"], F, [oe_pin, oe_via])
+    for point in (gnd_down, oe_via, c1_via):
+        board.via(nets["gnd"], *point)
+    board.track(nets["gnd"], B, [gnd_down, oe_via, c1_via])
 
     # reset beside the XIAO (pads in two columns, pin 2 left), RST and GND come down between the
     # XIAO's bottom pads
@@ -548,13 +579,13 @@ def route_electronics(board, left_block, right_block, cx, ox, oy):
                                  (gap("6", "7"), sw1_pin1[0][1] - 2.0), sw1_pin1[0]])
     # battery: SW2 and the pads in the centre above the register, the battery lies right of the
     # pads over the risers. +BATT leaves the XIAO to the right on B.Cu (RST and GND cross
-    # its way on F.Cu), hops to F.Cu and runs along the top edge; BAT- hangs on the GND strip line.
+    # its way on F.Cu), hops to F.Cu and runs as the top strip line; BAT- hangs on the GND strip line.
     sw2_pin3, sw2_pin2 = pad("SW2", "3"), pad("SW2", "2")
     bat_plus, bat_minus = pad("BAT+1", "1"), pad("BAT-1", "1")
-    batt_via, batt_y = (ox + 17.5, oy + 0.5), oy - 8.0
+    batt_via = (ox + 17.5, oy + 0.5)
     board.track(nets["batt"], B, [p19, (batt_via[0], p19[1]), batt_via])
     board.via(nets["batt"], *batt_via)
-    board.track(nets["batt"], F, [batt_via, (batt_via[0], batt_y), (sw2_pin3[0], batt_y), sw2_pin3])
+    board.track(nets["batt"], F, [batt_via, (batt_via[0], line_y["batt"]), (sw2_pin3[0], line_y["batt"]), sw2_pin3])
     board.track(nets["bat_sw"], F, [sw2_pin2, (sw2_pin2[0] - 1.0, sw2_pin2[1] + 1.5), (sw2_pin2[0] - 1.0, bat_plus[1] - 3.0), bat_plus])   # past the locating pin
     board.track(nets["gnd"], B, [(bat_minus[0], line_y["gnd"]), bat_minus])
 

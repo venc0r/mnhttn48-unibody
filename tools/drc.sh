@@ -10,6 +10,8 @@ mkdir -p "$(dirname "$OUT")"
 (cd board && kicad-cli pcb drc --severity-all --all-track-errors --format json --units mm --output "../$OUT" mnhttn48-unibody.kicad_pcb 2>&1 | grep -v Fontconfig | tail -1)
 jq -r '.violations | group_by(.type) | map("\(length) \(.[0].type)") | .[]' "$OUT" | sort -rn
 echo "unconnected: $(jq '.unconnected_items | length' "$OUT")"
+matrix=$(python3 -I tools/check_matrix.py) || { echo "$matrix"; exit 1; }
+echo "matrix: $(echo "$matrix" | tail -1)"
 if [ "${1:-}" = "details" ]; then
   jq -r '.violations[] | "\(.type): \(.description) @ \(.items | map("\(.description) (\(.pos.x|tostring|.[0:6]),\(.pos.y|tostring|.[0:6]))") | join(" | "))"' "$OUT" | cut -c1-240
   echo "--- unconnected"; jq -r '.unconnected_items[] | .items | map(.description) | join(" <-> ")' "$OUT" | cut -c1-200
